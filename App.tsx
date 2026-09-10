@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Appearance, StatusBar, StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { initialSnapshot } from "./src/initialData";
+import { LoginScreen } from "./src/screens/LoginScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
 import { TradingScreen } from "./src/screens/TradingScreen";
 import { theme } from "./src/theme";
@@ -9,6 +10,8 @@ import type { ConsoleSnapshot, SettingsPatch, TradeMode } from "./src/types";
 
 export default function App() {
   const [snapshot, setSnapshot] = useState<ConsoleSnapshot>(initialSnapshot);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [activeScreen, setActiveScreen] = useState<"trading" | "settings">(
     "trading",
   );
@@ -21,6 +24,18 @@ export default function App() {
     });
     return () => sub.remove();
   }, []);
+
+  const handleSignIn = (username: string) => {
+    setCurrentUser(username);
+    setIsAuthenticated(true);
+    setActiveScreen("trading");
+  };
+
+  const handleSignOut = () => {
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    setActiveScreen("trading");
+  };
 
   useEffect(() => {
     if (!snapshot.running) return;
@@ -182,25 +197,30 @@ export default function App() {
           backgroundColor={colors.paper}
         />
         <SafeAreaView style={styles.safeArea}>
-          {activeScreen === "trading" ? (
-            <TradingScreen
-              snapshot={snapshot}
-              onUpdateSettings={handleUpdateSettings}
-              onToggleRunning={handleToggleRunning}
-              onBuyDetected={handleBuyDetected}
-              onSellPosition={handleSellPosition}
-              onNavigateSettings={() => setActiveScreen("settings")}
-              onSetMode={handleSetMode}
-            />
-          ) : (
-            <SettingsScreen
-              snapshot={snapshot}
-              onUpdateSettings={handleUpdateSettings}
-              onRemoveChat={handleRemoveChat}
-              onBack={() => setActiveScreen("trading")}
-              onSignOut={() => setActiveScreen("trading")}
-            />
-          )}
+          <View style={[styles.mobileWrapper, { backgroundColor: colors.paper }]}>
+            {!isAuthenticated ? (
+              <LoginScreen onSignIn={handleSignIn} />
+            ) : activeScreen === "trading" ? (
+              <TradingScreen
+                snapshot={snapshot}
+                onUpdateSettings={handleUpdateSettings}
+                onToggleRunning={handleToggleRunning}
+                onBuyDetected={handleBuyDetected}
+                onSellPosition={handleSellPosition}
+                onNavigateSettings={() => setActiveScreen("settings")}
+                onSetMode={handleSetMode}
+              />
+            ) : (
+              <SettingsScreen
+                snapshot={snapshot}
+                currentUser={currentUser}
+                onUpdateSettings={handleUpdateSettings}
+                onRemoveChat={handleRemoveChat}
+                onBack={() => setActiveScreen("trading")}
+                onSignOut={handleSignOut}
+              />
+            )}
+          </View>
         </SafeAreaView>
       </View>
     </SafeAreaProvider>
@@ -213,5 +233,11 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  mobileWrapper: {
+    flex: 1,
+    width: "100%",
+    maxWidth: 480,
+    alignSelf: "center",
   },
 });

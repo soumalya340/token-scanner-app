@@ -76,6 +76,7 @@ function SuffixInput({
 
 interface SettingsScreenProps {
   snapshot: ConsoleSnapshot;
+  currentUser?: string | null;
   onUpdateSettings: (patch: SettingsPatch) => void;
   onRemoveChat: (chatId: string) => void;
   onBack: () => void;
@@ -84,6 +85,7 @@ interface SettingsScreenProps {
 
 export function SettingsScreen({
   snapshot,
+  currentUser,
   onUpdateSettings,
   onRemoveChat,
   onBack,
@@ -94,14 +96,10 @@ export function SettingsScreen({
   const [age, setAge] = useState(String(snapshot.tokenAgeMinutes));
   const [maxPct, setMaxPct] = useState(String(snapshot.maxTradePct));
   const [polling, setPolling] = useState(String(snapshot.pollingSeconds));
-  const [start, setStart] = useState(snapshot.dailyTimerStart);
-  const [end, setEnd] = useState(snapshot.dailyTimerEnd);
 
   useEffect(() => setAge(String(snapshot.tokenAgeMinutes)), [snapshot.tokenAgeMinutes]);
   useEffect(() => setMaxPct(String(snapshot.maxTradePct)), [snapshot.maxTradePct]);
   useEffect(() => setPolling(String(snapshot.pollingSeconds)), [snapshot.pollingSeconds]);
-  useEffect(() => setStart(snapshot.dailyTimerStart), [snapshot.dailyTimerStart]);
-  useEffect(() => setEnd(snapshot.dailyTimerEnd), [snapshot.dailyTimerEnd]);
 
   const persist = (patch: SettingsPatch, key: string) => {
     onUpdateSettings(patch);
@@ -209,86 +207,6 @@ export function SettingsScreen({
             How often the scanner looks for a new token.
           </Text>
         </View>
-
-        <View>
-          <Label text="Daily timer" saved={flash === "timer"} />
-          <Pressable
-            onPress={() =>
-              persist({ dailyTimerOn: !snapshot.dailyTimerOn }, "timer")
-            }
-            style={[
-              styles.timerToggle,
-              { borderColor: colors.rule, backgroundColor: colors.paper },
-            ]}
-          >
-            <Text style={[styles.body, { color: colors.muted }]}>Timer</Text>
-            <Text style={[styles.body, { color: colors.ink }]}>
-              {snapshot.dailyTimerOn ? "On" : "Off"}
-            </Text>
-          </Pressable>
-          {snapshot.dailyTimerOn ? (
-            <>
-              <View style={styles.timeRow}>
-                <View style={styles.timeCol}>
-                  <Text
-                    style={[styles.meta, { color: colors.muted, marginBottom: 8 }]}
-                  >
-                    Starts
-                  </Text>
-                  <TextInput
-                    style={[
-                      shared.input,
-                      {
-                        borderColor: colors.rule,
-                        color: colors.ink,
-                        backgroundColor: colors.paper,
-                      },
-                    ]}
-                    value={start}
-                    onChangeText={setStart}
-                    onBlur={() => {
-                      if (start === snapshot.dailyTimerStart) return;
-                      persist({ dailyTimerStart: start }, "timer");
-                    }}
-                    placeholder="09:00"
-                    placeholderTextColor={colors.muted}
-                  />
-                </View>
-                <View style={styles.timeCol}>
-                  <Text
-                    style={[styles.meta, { color: colors.muted, marginBottom: 8 }]}
-                  >
-                    Ends
-                  </Text>
-                  <TextInput
-                    style={[
-                      shared.input,
-                      {
-                        borderColor: colors.rule,
-                        color: colors.ink,
-                        backgroundColor: colors.paper,
-                      },
-                    ]}
-                    value={end}
-                    onChangeText={setEnd}
-                    onBlur={() => {
-                      if (end === snapshot.dailyTimerEnd) return;
-                      persist({ dailyTimerEnd: end }, "timer");
-                    }}
-                    placeholder="21:00"
-                    placeholderTextColor={colors.muted}
-                  />
-                </View>
-              </View>
-              <Text style={[styles.meta, { color: colors.muted, marginTop: 8 }]}>
-                IST
-              </Text>
-            </>
-          ) : null}
-          <Text style={[styles.meta, { color: colors.muted, marginTop: 8 }]}>
-            When on, the bot only runs between these times.
-          </Text>
-        </View>
       </View>
 
       <View style={{ marginTop: 32 }}>
@@ -326,9 +244,30 @@ export function SettingsScreen({
         ))}
       </View>
 
-      <Pressable onPress={onSignOut} style={{ marginTop: 48 }}>
-        <Text style={[styles.body, { color: colors.ink }]}>Sign out</Text>
-      </Pressable>
+      <View
+        style={{
+          marginTop: 48,
+          paddingTop: 24,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: colors.rule,
+        }}
+      >
+        {currentUser ? (
+          <Text style={[styles.meta, { color: colors.muted, marginBottom: 12 }]}>
+            Signed in as{" "}
+            <Text style={{ color: colors.ink, fontWeight: "500" }}>
+              {currentUser}
+            </Text>
+          </Text>
+        ) : null}
+        <Pressable
+          onPress={onSignOut}
+          style={styles.signOutBtn}
+          accessibilityLabel="Sign out"
+        >
+          <Text style={[styles.body, { color: colors.loss }]}>Sign out</Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
@@ -372,23 +311,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-  timerToggle: {
-    height: 48,
-    borderRadius: 8,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  timeRow: {
-    marginTop: 16,
-    flexDirection: "row",
-    gap: 12,
-  },
-  timeCol: {
-    flex: 1,
-  },
   chatRow: {
     minHeight: 44,
     flexDirection: "row",
@@ -405,5 +327,9 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: 14,
     lineHeight: 20,
+  },
+  signOutBtn: {
+    minHeight: 44,
+    justifyContent: "center",
   },
 });

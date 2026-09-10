@@ -36,9 +36,6 @@ export type ConsoleSnapshot = {
   mode: TradeMode;
   tradeAmountEth: number;
   trailingStopPct: number;
-  dailyTimerOn: boolean;
-  dailyTimerStart: string;
-  dailyTimerEnd: string;
   graduatedApproval: boolean;
   tokenAgeMinutes: number;
   maxTradePct: number;
@@ -50,16 +47,12 @@ export type ConsoleSnapshot = {
   pending: PendingTrade | null;
   lastError: string | null;
   chats: TelegramChat[];
-  inTimerWindow: boolean;
 };
 
 export type SettingsPatch = {
   mode?: TradeMode;
   tradeAmountEth?: number;
   trailingStopPct?: number;
-  dailyTimerOn?: boolean;
-  dailyTimerStart?: string;
-  dailyTimerEnd?: string;
   graduatedApproval?: boolean;
   tokenAgeMinutes?: number;
   maxTradePct?: number;

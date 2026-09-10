@@ -18,12 +18,9 @@ export function ConfigRows({
   onSave: (patch: SettingsPatch) => void;
 }) {
   const colors = theme.colors;
-  const [open, setOpen] = useState<"amount" | "stop" | "timer" | null>(null);
+  const [open, setOpen] = useState<"amount" | "stop" | null>(null);
   const [amount, setAmount] = useState(String(snapshot.tradeAmountEth));
   const [stop, setStop] = useState(String(snapshot.trailingStopPct));
-  const [timerOn, setTimerOn] = useState(snapshot.dailyTimerOn);
-  const [start, setStart] = useState(snapshot.dailyTimerStart);
-  const [end, setEnd] = useState(snapshot.dailyTimerEnd);
 
   useEffect(() => {
     if (open !== "amount") setAmount(String(snapshot.tradeAmountEth));
@@ -31,22 +28,6 @@ export function ConfigRows({
   useEffect(() => {
     if (open !== "stop") setStop(String(snapshot.trailingStopPct));
   }, [open, snapshot.trailingStopPct]);
-  useEffect(() => {
-    if (open !== "timer") {
-      setTimerOn(snapshot.dailyTimerOn);
-      setStart(snapshot.dailyTimerStart);
-      setEnd(snapshot.dailyTimerEnd);
-    }
-  }, [
-    open,
-    snapshot.dailyTimerOn,
-    snapshot.dailyTimerEnd,
-    snapshot.dailyTimerStart,
-  ]);
-
-  const timerLabel = snapshot.dailyTimerOn
-    ? `${snapshot.dailyTimerStart}–${snapshot.dailyTimerEnd}`
-    : "Off";
 
   return (
     <View>
@@ -90,6 +71,7 @@ export function ConfigRows({
         label="Trailing stop"
         value={`${Number(snapshot.trailingStopPct).toFixed(0)}%`}
         open={open === "stop"}
+        last
         onToggle={() => setOpen(open === "stop" ? null : "stop")}
       >
         <View>
@@ -115,87 +97,6 @@ export function ConfigRows({
             onSave={() => {
               const n = Number(stop);
               if (Number.isFinite(n)) onSave({ trailingStopPct: n });
-              setOpen(null);
-            }}
-            onCancel={() => setOpen(null)}
-          />
-        </View>
-      </Row>
-
-      <Row
-        label="Daily timer"
-        value={timerLabel}
-        open={open === "timer"}
-        last
-        onToggle={() => setOpen(open === "timer" ? null : "timer")}
-      >
-        <View>
-          <Pressable
-            onPress={() => setTimerOn((v) => !v)}
-            style={[
-              styles.timerToggle,
-              { borderColor: colors.rule, backgroundColor: colors.paper },
-            ]}
-          >
-            <Text style={[styles.body, { color: colors.muted }]}>Timer</Text>
-            <Text style={[styles.body, { color: colors.ink }]}>
-              {timerOn ? "On" : "Off"}
-            </Text>
-          </Pressable>
-          {timerOn ? (
-            <View style={styles.timeRow}>
-              <View style={styles.timeCol}>
-                <Text style={[styles.meta, { color: colors.muted, marginBottom: 8 }]}>
-                  Starts
-                </Text>
-                <TextInput
-                  style={[
-                    shared.input,
-                    {
-                      borderColor: colors.rule,
-                      color: colors.ink,
-                      backgroundColor: colors.paper,
-                    },
-                  ]}
-                  value={start}
-                  onChangeText={setStart}
-                  placeholder="09:00"
-                  placeholderTextColor={colors.muted}
-                />
-              </View>
-              <View style={styles.timeCol}>
-                <Text style={[styles.meta, { color: colors.muted, marginBottom: 8 }]}>
-                  Ends
-                </Text>
-                <TextInput
-                  style={[
-                    shared.input,
-                    {
-                      borderColor: colors.rule,
-                      color: colors.ink,
-                      backgroundColor: colors.paper,
-                    },
-                  ]}
-                  value={end}
-                  onChangeText={setEnd}
-                  placeholder="21:00"
-                  placeholderTextColor={colors.muted}
-                />
-              </View>
-            </View>
-          ) : null}
-          {timerOn ? (
-            <Text style={[styles.meta, { color: colors.muted, marginTop: 8 }]}>
-              IST
-            </Text>
-          ) : null}
-          <ActionPair
-            onSave={() => {
-              onSave({
-                dailyTimerOn: timerOn,
-                dailyTimerStart: start,
-                dailyTimerEnd: end,
-              });
               setOpen(null);
             }}
             onCancel={() => setOpen(null)}
@@ -302,23 +203,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   actionHalf: {
-    flex: 1,
-  },
-  timerToggle: {
-    height: 48,
-    borderRadius: 8,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  timeRow: {
-    marginTop: 12,
-    flexDirection: "row",
-    gap: 12,
-  },
-  timeCol: {
     flex: 1,
   },
   body: {

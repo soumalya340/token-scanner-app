@@ -12,10 +12,6 @@ export const initialSnapshot: ConsoleSnapshot = {
   maxTradePct: 20,
   pollingSeconds: 5,
   graduatedApproval: false,
-  dailyTimerOn: false,
-  dailyTimerStart: "09:00",
-  dailyTimerEnd: "21:00",
-  inTimerWindow: true,
   walletEth: 1.842,
   ethUsd: 3120,
   position: {

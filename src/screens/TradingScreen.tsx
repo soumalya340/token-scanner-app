@@ -16,9 +16,6 @@ import { shared, theme } from "../theme";
 import type { ConsoleSnapshot, SettingsPatch, TradeMode } from "../types";
 
 function statusCaption(snapshot: ConsoleSnapshot): string {
-  if (snapshot.dailyTimerOn && !snapshot.running && !snapshot.inTimerWindow) {
-    return `starts ${snapshot.dailyTimerStart} IST`;
-  }
   if (snapshot.running && snapshot.runningSince) {
     return `since ${formatIstClock(snapshot.runningSince)}`;
   }
@@ -179,16 +176,15 @@ export function TradingScreen({
 
         <View style={{ marginTop: 16 }}>
           <Pressable
-            disabled={snapshot.dailyTimerOn}
             onPress={onToggleRunning}
             style={({ pressed }) => [
               shared.fillButton,
               {
                 backgroundColor: colors.ink,
-                opacity: snapshot.dailyTimerOn ? 0.4 : pressed ? 0.9 : 1,
+                opacity: pressed ? 0.9 : 1,
                 transform: [
                   {
-                    scale: pressed && !snapshot.dailyTimerOn ? 0.96 : 1,
+                    scale: pressed ? 0.96 : 1,
                   },
                 ],
               },
@@ -198,11 +194,6 @@ export function TradingScreen({
               {snapshot.running ? "Stop bot" : "Start bot"}
             </Text>
           </Pressable>
-          {snapshot.dailyTimerOn ? (
-            <Text style={[styles.meta, { color: colors.muted, marginTop: 8 }]}>
-              Timer controls the bot. Turn it off in settings to start manually.
-            </Text>
-          ) : null}
         </View>
       </View>
 
