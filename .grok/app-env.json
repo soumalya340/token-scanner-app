@@ -1,7 +1,0 @@
-{
-  "VITE_AUTH_ENABLED": "false",
-  "AUTH_EMAIL_PASSWORD": "false",
-  "deploy": {
-    "database": true
-  }
-}
