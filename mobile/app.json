@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Token Scanner",
+    "slug": "token-scanner-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0c0d0e"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tokenscanner.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0c0d0e"
+      },
+      "package": "com.tokenscanner.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

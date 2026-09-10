@@ -1,0 +1,42 @@
+import type { ConsoleSnapshot } from "./types";
+
+export const initialSnapshot: ConsoleSnapshot = {
+  running: true,
+  runningSince: new Date(Date.now() - 1000 * 60 * 42).toISOString(),
+  stoppedSince: undefined,
+  connected: true,
+  mode: "auto",
+  tradeAmountEth: 0.05,
+  trailingStopPct: 5,
+  tokenAgeMinutes: 3,
+  maxTradePct: 20,
+  pollingSeconds: 5,
+  graduatedApproval: false,
+  dailyTimerOn: false,
+  dailyTimerStart: "09:00",
+  dailyTimerEnd: "21:00",
+  inTimerWindow: true,
+  walletEth: 1.842,
+  ethUsd: 3120,
+  position: {
+    tokenName: "$NEO_PUMP",
+    tokenAddress: "0x71C8A3311894d306b986872a08BFe5109b8D5a9F",
+    boughtAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+    entryEth: 0.05,
+    currentEth: 0.0592,
+    peakEth: 0.061,
+    trailingStopEth: 0.05795,
+  },
+  detected: {
+    name: "$MOON_ORBIT",
+    address: "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7",
+    detectedAt: new Date(Date.now() - 1000 * 45).toISOString(),
+    graduated: false,
+  },
+  pending: null,
+  lastError: null,
+  chats: [
+    { id: "c1", chatId: "-10023849102", name: "Alpha Callers Room" },
+    { id: "c2", chatId: "98234123", name: "Personal DM" },
+  ],
+};

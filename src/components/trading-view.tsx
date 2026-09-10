@@ -2,11 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ConfigRows } from "@/components/config-rows";
-import { CopyAddress } from "@/components/copy-address";
+import { LastCoinDetails } from "@/components/last-coin-details";
 import { Hairline, PageShell, FillButton } from "@/components/page-shell";
 import { PositionCard } from "@/components/position-card";
 import { Segmented } from "@/components/segmented";
-import { formatAddress, formatAge, formatEth, formatIstClock, formatUsd } from "@/lib/format";
+import { formatAddress, formatEth, formatIstClock, formatUsd } from "@/lib/format";
 import type { ConsoleSnapshot } from "@/lib/console-types";
 import { useConsole } from "@/lib/use-console";
 
@@ -141,19 +141,6 @@ export function TradingView() {
 
       <section className="space-y-6">
         <div>
-          <p className="text-body text-muted">Latest detected</p>
-          {snapshot?.detected ? (
-            <>
-              <p className="mt-1 text-section font-medium text-ink">
-                {snapshot.detected.name} · {formatAge(new Date(snapshot.detected.detectedAt).getTime(), now)}
-              </p>
-              <CopyAddress address={snapshot.detected.address} className="mt-1 block" />
-            </>
-          ) : (
-            <p className="mt-1 text-section font-medium text-muted">Nothing detected yet</p>
-          )}
-        </div>
-        <div>
           <p className="text-body text-muted">Wallet</p>
           <p className="mt-1 text-section font-medium text-ink">
             {snapshot ? (
@@ -166,6 +153,10 @@ export function TradingView() {
           </p>
         </div>
       </section>
+
+      <Hairline />
+
+      {snapshot ? <LastCoinDetails snapshot={snapshot} now={now} /> : null}
     </PageShell>
   );
 }
