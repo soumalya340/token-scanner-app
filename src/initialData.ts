@@ -3,7 +3,7 @@ import type { ConsoleSnapshot } from "./types";
 export const initialSnapshot: ConsoleSnapshot = {
   running: true,
   runningSince: new Date(Date.now() - 1000 * 60 * 42).toISOString(),
-  stoppedSince: undefined,
+  stoppedSince: null,
   connected: true,
   mode: "auto",
   tradeAmountEth: 0.05,
@@ -19,16 +19,15 @@ export const initialSnapshot: ConsoleSnapshot = {
   walletEth: 1.842,
   ethUsd: 3120,
   position: {
-    tokenName: "$NEO_PUMP",
-    tokenAddress: "0x71C8A3311894d306b986872a08BFe5109b8D5a9F",
+    name: "MOONCAT",
+    address: "0x71C8A3311894d306b986872a08BFe5109b8D5a9F",
     boughtAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
     entryEth: 0.05,
     currentEth: 0.0592,
     peakEth: 0.061,
-    trailingStopEth: 0.05795,
   },
   detected: {
-    name: "$MOON_ORBIT",
+    name: "MOONCAT",
     address: "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7",
     detectedAt: new Date(Date.now() - 1000 * 45).toISOString(),
     graduated: false,

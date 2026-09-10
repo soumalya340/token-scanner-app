@@ -1,32 +1,46 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Appearance, StatusBar, StyleSheet, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { initialSnapshot } from "./src/initialData";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
 import { TradingScreen } from "./src/screens/TradingScreen";
 import { theme } from "./src/theme";
-import type { ConsoleSnapshot, SettingsPatch } from "./src/types";
+import type { ConsoleSnapshot, SettingsPatch, TradeMode } from "./src/types";
 
 export default function App() {
   const [snapshot, setSnapshot] = useState<ConsoleSnapshot>(initialSnapshot);
-  const [activeScreen, setActiveScreen] = useState<"trading" | "settings">("trading");
+  const [activeScreen, setActiveScreen] = useState<"trading" | "settings">(
+    "trading",
+  );
+  const [scheme, setScheme] = useState(Appearance.getColorScheme());
+  const colors = theme.colors;
 
-  // Live telemetry ticker: updates prices and checks trailing stop
+  useEffect(() => {
+    const sub = Appearance.addChangeListener(({ colorScheme }) => {
+      setScheme(colorScheme);
+    });
+    return () => sub.remove();
+  }, []);
+
   useEffect(() => {
     if (!snapshot.running) return;
 
     const interval = setInterval(() => {
       setSnapshot((prev) => {
         if (!prev.position) {
-          // Occasionally discover new token if none detected recently
-          const randomTokens = ["$CYBER_PEPE", "$DEGEN_ROLL", "$TURBO_DEX", "$QUANTUM"];
+          const randomTokens = ["MOONCAT", "FROGE", "CHONK", "GIGA", "PEPU"];
           if (Math.random() < 0.25) {
-            const picked = randomTokens[Math.floor(Math.random() * randomTokens.length)];
+            const picked =
+              randomTokens[Math.floor(Math.random() * randomTokens.length)];
             return {
               ...prev,
               detected: {
                 name: picked,
-                address: "0x" + Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join(""),
+                address:
+                  "0x" +
+                  Array.from({ length: 40 }, () =>
+                    Math.floor(Math.random() * 16).toString(16),
+                  ).join(""),
                 detectedAt: new Date().toISOString(),
                 graduated: Math.random() > 0.7,
               },
@@ -35,20 +49,20 @@ export default function App() {
           return prev;
         }
 
-        // Modulate current price with gentle crypto volatility (-1.5% to +2.5%)
         const deltaPct = (Math.random() * 4 - 1.8) / 100;
-        const newCurrent = Math.max(0.001, prev.position.currentEth * (1 + deltaPct));
+        const newCurrent = Math.max(
+          0.001,
+          prev.position.currentEth * (1 + deltaPct),
+        );
         const newPeak = Math.max(prev.position.peakEth, newCurrent);
-        const newStop = newPeak * (1 - prev.trailingStopPct / 100);
+        const stopEth = newPeak * (1 - prev.trailingStopPct / 100);
 
-        // Check if trailing stop triggered
-        if (newCurrent <= prev.position.trailingStopEth) {
-          const soldEth = newCurrent;
+        if (newCurrent <= stopEth) {
           return {
             ...prev,
-            walletEth: prev.walletEth + soldEth,
+            walletEth: prev.walletEth + newCurrent,
             position: null,
-            lastError: `Trailing stop hit on ${prev.position.tokenName} at ${soldEth.toFixed(4)} ETH`,
+            lastError: `Trailing stop hit on ${prev.position.name} at ${newCurrent.toFixed(4)} ETH`,
           };
         }
 
@@ -58,7 +72,6 @@ export default function App() {
             ...prev.position,
             currentEth: newCurrent,
             peakEth: newPeak,
-            trailingStopEth: newStop,
           },
         };
       });
@@ -74,14 +87,18 @@ export default function App() {
     }));
   };
 
+  const handleSetMode = (mode: TradeMode) => {
+    setSnapshot((prev) => ({ ...prev, mode }));
+  };
+
   const handleToggleRunning = () => {
     setSnapshot((prev) => {
       const nextRunning = !prev.running;
       return {
         ...prev,
         running: nextRunning,
-        runningSince: nextRunning ? new Date().toISOString() : undefined,
-        stoppedSince: !nextRunning ? new Date().toISOString() : undefined,
+        runningSince: nextRunning ? new Date().toISOString() : null,
+        stoppedSince: !nextRunning ? new Date().toISOString() : null,
       };
     });
   };
@@ -94,28 +111,31 @@ export default function App() {
       ...prev,
       pending: {
         action: "buy",
-        hash: "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(""),
+        hash:
+          "0x" +
+          Array.from({ length: 64 }, () =>
+            Math.floor(Math.random() * 16).toString(16),
+          ).join(""),
       },
     }));
 
     setTimeout(() => {
       setSnapshot((prev) => {
         const tradeCost = prev.tradeAmountEth;
-        const entryStop = tradeCost * (1 - prev.trailingStopPct / 100);
         return {
           ...prev,
           pending: null,
           walletEth: Math.max(0, prev.walletEth - tradeCost),
           position: {
-            tokenName: detectedToken.name,
-            tokenAddress: detectedToken.address,
+            name: detectedToken.name,
+            address: detectedToken.address,
             boughtAt: new Date().toISOString(),
             entryEth: tradeCost,
             currentEth: tradeCost,
             peakEth: tradeCost,
-            trailingStopEth: entryStop,
           },
           detected: null,
+          lastError: null,
         };
       });
     }, 1200);
@@ -129,7 +149,11 @@ export default function App() {
       ...prev,
       pending: {
         action: "sell",
-        hash: "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(""),
+        hash:
+          "0x" +
+          Array.from({ length: 64 }, () =>
+            Math.floor(Math.random() * 16).toString(16),
+          ).join(""),
       },
     }));
 
@@ -150,20 +174,13 @@ export default function App() {
     }));
   };
 
-  const handleAddChat = (chatId: string, name?: string) => {
-    setSnapshot((prev) => ({
-      ...prev,
-      chats: [
-        ...prev.chats,
-        { id: `c_${Date.now()}`, chatId, name: name || "Notification Chat" },
-      ],
-    }));
-  };
-
   return (
     <SafeAreaProvider>
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={theme.colors.background} />
+      <View style={[styles.container, { backgroundColor: colors.paper }]}>
+        <StatusBar
+          barStyle={scheme === "dark" ? "light-content" : "dark-content"}
+          backgroundColor={colors.paper}
+        />
         <SafeAreaView style={styles.safeArea}>
           {activeScreen === "trading" ? (
             <TradingScreen
@@ -173,14 +190,15 @@ export default function App() {
               onBuyDetected={handleBuyDetected}
               onSellPosition={handleSellPosition}
               onNavigateSettings={() => setActiveScreen("settings")}
+              onSetMode={handleSetMode}
             />
           ) : (
             <SettingsScreen
               snapshot={snapshot}
               onUpdateSettings={handleUpdateSettings}
               onRemoveChat={handleRemoveChat}
-              onAddChat={handleAddChat}
               onBack={() => setActiveScreen("trading")}
+              onSignOut={() => setActiveScreen("trading")}
             />
           )}
         </SafeAreaView>
@@ -192,7 +210,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   safeArea: {
     flex: 1,

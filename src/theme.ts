@@ -1,36 +1,72 @@
+import { Appearance, StyleSheet } from "react-native";
+
+const light = {
+  paper: "#f7f6f3",
+  ink: "#1c1b19",
+  muted: "#8a867e",
+  rule: "#e3e0da",
+  gain: "#2e6f4e",
+  loss: "#a33a2a",
+};
+
+const dark = {
+  paper: "#161513",
+  ink: "#f2f0ec",
+  muted: "#8d897f",
+  rule: "#2a2825",
+  gain: "#5fa97e",
+  loss: "#d4634e",
+};
+
+export function getColors() {
+  return Appearance.getColorScheme() === "dark" ? dark : light;
+}
+
 export const theme = {
-  colors: {
-    background: "#0c0d0e",
-    cardBackground: "#13161a",
-    subtleCard: "#1a1d22",
-    border: "#232830",
-    borderActive: "#3a4150",
-    textPrimary: "#f3f4f6",
-    textMuted: "#9ca3af",
-    textDim: "#6b7280",
-    gain: "#22c55e",
-    gainBg: "#052e16",
-    loss: "#ef4444",
-    lossBg: "#450a0a",
-    accent: "#3b82f6",
-    accentHover: "#2563eb",
-    buttonPrimary: "#f3f4f6",
-    buttonPrimaryText: "#0c0d0e",
-    buttonDanger: "#dc2626",
+  get colors() {
+    return getColors();
   },
-  spacing: {
-    xs: 4,
-    sm: 8,
-    md: 12,
-    lg: 16,
-    xl: 20,
-    xxl: 24,
+  type: {
+    pnl: 56,
+    status: 24,
+    section: 20,
+    value: 17,
+    body: 16,
+    meta: 14,
   },
   radii: {
-    sm: 6,
-    md: 10,
-    lg: 14,
-    xl: 18,
-    full: 9999,
+    card: 12,
+    control: 8,
+  },
+  space: {
+    pageX: 20,
+    pageY: 32,
+    hairline: 32,
   },
 };
+
+export const shared = StyleSheet.create({
+  fillButton: {
+    height: 48,
+    width: "100%",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  outlineButton: {
+    height: 48,
+    width: "100%",
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  input: {
+    height: 48,
+    width: "100%",
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    fontSize: 16,
+  },
+});

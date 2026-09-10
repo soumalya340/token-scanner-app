@@ -1,70 +1,67 @@
-export type TradingMode = "auto" | "manual";
+export type TradeMode = "auto" | "manual";
+export type PendingAction = "buy" | "sell";
 
-export interface ChatConfig {
-  id: string;
-  chatId: string;
-  name?: string;
-}
-
-export interface DetectedToken {
+export type DetectedToken = {
   name: string;
   address: string;
   detectedAt: string;
-  graduated?: boolean;
-}
+  graduated: boolean;
+};
 
-export interface Position {
-  tokenName: string;
-  tokenAddress: string;
+export type OpenPosition = {
+  name: string;
+  address: string;
   boughtAt: string;
   entryEth: number;
-  currentEth: number;
   peakEth: number;
-  trailingStopEth: number;
-}
+  currentEth: number;
+};
 
-export interface PendingAction {
-  action: "buy" | "sell";
+export type PendingTrade = {
+  action: PendingAction;
   hash: string;
-}
+};
 
-export interface ConsoleSnapshot {
+export type TelegramChat = {
+  id: string;
+  name: string | null;
+  chatId: string;
+};
+
+export type ConsoleSnapshot = {
   running: boolean;
-  runningSince?: string;
-  stoppedSince?: string;
+  runningSince: string | null;
+  stoppedSince: string | null;
   connected: boolean;
-  mode: TradingMode;
+  mode: TradeMode;
   tradeAmountEth: number;
   trailingStopPct: number;
+  dailyTimerOn: boolean;
+  dailyTimerStart: string;
+  dailyTimerEnd: string;
+  graduatedApproval: boolean;
   tokenAgeMinutes: number;
   maxTradePct: number;
   pollingSeconds: number;
-  graduatedApproval: boolean;
-  dailyTimerOn: boolean;
-  dailyTimerStart: string; // e.g. "09:00"
-  dailyTimerEnd: string;   // e.g. "21:00"
-  inTimerWindow: boolean;
   walletEth: number;
   ethUsd: number;
-  position: Position | null;
   detected: DetectedToken | null;
-  pending: PendingAction | null;
+  position: OpenPosition | null;
+  pending: PendingTrade | null;
   lastError: string | null;
-  chats: ChatConfig[];
-}
+  chats: TelegramChat[];
+  inTimerWindow: boolean;
+};
 
-export type SettingsPatch = Partial<
-  Pick<
-    ConsoleSnapshot,
-    | "tradeAmountEth"
-    | "trailingStopPct"
-    | "tokenAgeMinutes"
-    | "maxTradePct"
-    | "pollingSeconds"
-    | "graduatedApproval"
-    | "dailyTimerOn"
-    | "dailyTimerStart"
-    | "dailyTimerEnd"
-    | "mode"
-  >
->;
+export type SettingsPatch = {
+  mode?: TradeMode;
+  tradeAmountEth?: number;
+  trailingStopPct?: number;
+  dailyTimerOn?: boolean;
+  dailyTimerStart?: string;
+  dailyTimerEnd?: string;
+  graduatedApproval?: boolean;
+  tokenAgeMinutes?: number;
+  maxTradePct?: number;
+  pollingSeconds?: number;
+};
