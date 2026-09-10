@@ -30,22 +30,17 @@ A React Native & Expo mobile trading console and token scanner application for i
 
 ### Installation & Launch
 
-1. Open your terminal and navigate to the mobile folder:
-   ```bash
-   cd mobile
-   ```
-
-2. Install dependencies:
+1. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Start the Expo development server:
+2. Start the Expo development server:
    ```bash
    npx expo start
    ```
 
-4. Run on your device or simulator:
+3. Run on your device or simulator:
    - **iOS / Android device**: Scan the QR code displayed in your terminal using the Camera app (iOS) or the Expo Go app (Android).
    - **iOS Simulator**: Press `i` in the terminal (macOS with Xcode required).
    - **Android Emulator**: Press `a` in the terminal (Android Studio required).
@@ -87,7 +82,6 @@ To build standalone production apps for distribution:
 ## Project Structure
 
 ```
-mobile/
 ├── App.tsx                     # Root mobile container, state management & ticker loop
 ├── app.json                    # Expo project configuration (bundle ID, permissions)
 ├── package.json                # React Native & Expo dependencies
