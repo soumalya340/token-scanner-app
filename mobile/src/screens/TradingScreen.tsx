@@ -59,9 +59,6 @@ export function TradingScreen({
   };
 
   const getStatusCaption = () => {
-    if (snapshot.dailyTimerOn && !snapshot.running && !snapshot.inTimerWindow) {
-      return `Scheduled ${snapshot.dailyTimerStart} - ${snapshot.dailyTimerEnd} IST`;
-    }
     if (snapshot.running && snapshot.runningSince) {
       return `Active since ${formatClockIst(snapshot.runningSince)} IST`;
     }
@@ -198,11 +195,9 @@ export function TradingScreen({
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={onToggleRunning}
-          disabled={snapshot.dailyTimerOn}
           style={[
             styles.masterButton,
             snapshot.running ? styles.stopButtonBg : styles.startButtonBg,
-            snapshot.dailyTimerOn && styles.buttonDisabled,
           ]}
         >
           <Text
@@ -214,13 +209,6 @@ export function TradingScreen({
             {snapshot.running ? "Pause Scanner" : "Start Scanner"}
           </Text>
         </TouchableOpacity>
-
-        {snapshot.dailyTimerOn && (
-          <Text style={styles.timerNotice}>
-            Automated timer is active ({snapshot.dailyTimerStart} -{" "}
-            {snapshot.dailyTimerEnd} IST). Disable timer in Settings for manual override.
-          </Text>
-        )}
       </View>
 
       {/* Quick Config Cards */}
@@ -314,6 +302,54 @@ export function TradingScreen({
         )}
       </View>
 
+      {/* Latest Detected Token */}
+      <View style={styles.section}>
+        <Text style={styles.sectionHeader}>Latest Detected Token</Text>
+        {snapshot.detected ? (
+          <View style={styles.detectedCard}>
+            <View style={styles.detectedTopRow}>
+              <View>
+                <Text style={styles.detectedTokenName}>{snapshot.detected.name}</Text>
+                <Text style={styles.detectedAge}>
+                  Discovered {formatAge(snapshot.detected.detectedAt)}
+                </Text>
+              </View>
+              {snapshot.detected.graduated ? (
+                <View style={styles.graduatedPill}>
+                  <ShieldCheck size={14} color={theme.colors.gain} />
+                  <Text style={styles.graduatedText}>Graduated</Text>
+                </View>
+              ) : null}
+            </View>
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => handleCopyAddress(snapshot.detected!.address)}
+              style={styles.addressRow}
+            >
+              <Text style={styles.addressText}>
+                {formatAddress(snapshot.detected.address)}
+              </Text>
+              <View style={styles.copyPill}>
+                {copied ? (
+                  <Check size={13} color={theme.colors.gain} />
+                ) : (
+                  <Copy size={13} color={theme.colors.textMuted} />
+                )}
+                <Text style={styles.copyText}>{copied ? "Copied" : "Copy"}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyCardTitle}>No new token detected</Text>
+            <Text style={styles.emptyCardSubtitle}>
+              Listening to decentralized exchange liquidity pool creations…
+            </Text>
+          </View>
+        )}
+      </View>
+
       {/* Connected Wallet */}
       <View style={styles.section}>
         <Text style={styles.sectionHeader}>Connected Wallet</Text>
@@ -329,121 +365,6 @@ export function TradingScreen({
             </Text>
           </View>
         </View>
-      </View>
-
-      {/* Last Coin Details */}
-      <View style={styles.section}>
-        <Text style={styles.sectionHeader}>Last Coin Details</Text>
-        {snapshot.detected || snapshot.position ? (
-          (() => {
-            const coin = snapshot.detected
-              ? {
-                  name: snapshot.detected.name,
-                  address: snapshot.detected.address,
-                  detectedAt: snapshot.detected.detectedAt,
-                  graduated: snapshot.detected.graduated,
-                  isPosition: false,
-                }
-              : {
-                  name: snapshot.position!.tokenName,
-                  address: snapshot.position!.tokenAddress,
-                  detectedAt: snapshot.position!.boughtAt,
-                  graduated: snapshot.graduatedApproval,
-                  isPosition: true,
-                };
-            return (
-              <View style={styles.detectedCard}>
-                <View style={styles.detectedTopRow}>
-                  <View>
-                    <Text style={styles.detectedTokenName}>{coin.name}</Text>
-                    <Text style={styles.detectedAge}>
-                      Discovered {formatAge(coin.detectedAt)}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.graduatedPill,
-                      !coin.graduated && { backgroundColor: theme.colors.subtleCard },
-                    ]}
-                  >
-                    <ShieldCheck
-                      size={14}
-                      color={coin.graduated ? theme.colors.gain : theme.colors.textMuted}
-                    />
-                    <Text
-                      style={[
-                        styles.graduatedText,
-                        !coin.graduated && { color: theme.colors.textMuted },
-                      ]}
-                    >
-                      {coin.graduated ? "Graduated" : "Bonding Curve"}
-                    </Text>
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => handleCopyAddress(coin.address)}
-                  style={styles.addressRow}
-                >
-                  <Text style={styles.addressText}>{formatAddress(coin.address)}</Text>
-                  <View style={styles.copyPill}>
-                    {copied ? (
-                      <Check size={13} color={theme.colors.gain} />
-                    ) : (
-                      <Copy size={13} color={theme.colors.textMuted} />
-                    )}
-                    <Text style={styles.copyText}>{copied ? "Copied" : "Copy"}</Text>
-                  </View>
-                </TouchableOpacity>
-
-                <View style={styles.metricsDetailGrid}>
-                  <View style={styles.metricsDetailItem}>
-                    <Text style={styles.metricsDetailLabel}>Detected Time</Text>
-                    <Text style={styles.metricsDetailValue}>
-                      {formatClockIst(coin.detectedAt)}
-                    </Text>
-                  </View>
-                  <View style={styles.metricsDetailItem}>
-                    <Text style={styles.metricsDetailLabel}>Age Limit</Text>
-                    <Text style={styles.metricsDetailValue}>
-                      ≤ {snapshot.tokenAgeMinutes}m allowed
-                    </Text>
-                  </View>
-                  <View style={styles.metricsDetailItem}>
-                    <Text style={styles.metricsDetailLabel}>Target Size</Text>
-                    <Text style={styles.metricsDetailValue}>
-                      {formatEth(
-                        Math.min(
-                          snapshot.tradeAmountEth,
-                          (snapshot.walletEth * snapshot.maxTradePct) / 100
-                        )
-                      )}{" "}
-                      ETH
-                    </Text>
-                  </View>
-                  <View style={styles.metricsDetailItem}>
-                    <Text style={styles.metricsDetailLabel}>Filter Status</Text>
-                    <Text style={styles.metricsDetailValue}>
-                      {coin.graduated
-                        ? snapshot.graduatedApproval
-                          ? "Approved"
-                          : "Bypassed"
-                        : "Active Curve"}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            );
-          })()
-        ) : (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyCardTitle}>No coin detected yet</Text>
-            <Text style={styles.emptyCardSubtitle}>
-              Listening to decentralized exchange liquidity pool creations…
-            </Text>
-          </View>
-        )}
       </View>
     </ScrollView>
   );
@@ -621,12 +542,6 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.45,
   },
-  timerNotice: {
-    fontSize: 12,
-    color: theme.colors.textDim,
-    marginTop: 6,
-    textAlign: "center",
-  },
   configGrid: {
     flexDirection: "row",
     gap: theme.spacing.md,
@@ -783,30 +698,6 @@ const styles = StyleSheet.create({
   walletUsd: {
     fontSize: 12,
     color: theme.colors.textDim,
-    marginTop: 2,
-  },
-  metricsDetailGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: theme.spacing.md,
-    paddingTop: theme.spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderColor: theme.colors.border,
-    rowGap: 10,
-  },
-  metricsDetailItem: {
-    width: "50%",
-  },
-  metricsDetailLabel: {
-    fontSize: 11,
-    color: theme.colors.textDim,
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
-  },
-  metricsDetailValue: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: theme.colors.textPrimary,
     marginTop: 2,
   },
 });

@@ -58,14 +58,10 @@ function SettingsFields({
   const [age, setAge] = useState(String(snapshot.tokenAgeMinutes));
   const [maxPct, setMaxPct] = useState(String(snapshot.maxTradePct));
   const [polling, setPolling] = useState(String(snapshot.pollingSeconds));
-  const [start, setStart] = useState(snapshot.dailyTimerStart);
-  const [end, setEnd] = useState(snapshot.dailyTimerEnd);
 
   useEffect(() => setAge(String(snapshot.tokenAgeMinutes)), [snapshot.tokenAgeMinutes]);
   useEffect(() => setMaxPct(String(snapshot.maxTradePct)), [snapshot.maxTradePct]);
   useEffect(() => setPolling(String(snapshot.pollingSeconds)), [snapshot.pollingSeconds]);
-  useEffect(() => setStart(snapshot.dailyTimerStart), [snapshot.dailyTimerStart]);
-  useEffect(() => setEnd(snapshot.dailyTimerEnd), [snapshot.dailyTimerEnd]);
 
   const persist = (patch: SettingsPatch, key: string) => {
     onSave(patch);
@@ -152,54 +148,6 @@ function SettingsFields({
           aria-label="Polling time in seconds"
         />
         <p className="mt-2 text-meta text-muted">How often the scanner looks for a new token.</p>
-      </section>
-
-      <section>
-        <Label text="Daily timer" saved={flash === "timer"} />
-        <button
-          type="button"
-          onClick={() => persist({ dailyTimerOn: !snapshot.dailyTimerOn }, "timer")}
-          className="flex h-12 w-full items-center justify-between rounded-control border border-rule px-3 text-body"
-        >
-          <span className="text-muted">Timer</span>
-          <span className="text-ink">{snapshot.dailyTimerOn ? "On" : "Off"}</span>
-        </button>
-        {snapshot.dailyTimerOn ? (
-          <>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className="mb-2 block text-meta text-muted">Starts</span>
-                <input
-                  type="time"
-                  value={start}
-                  onChange={(e) => setStart(e.target.value)}
-                  onBlur={() => {
-                    if (start === snapshot.dailyTimerStart) return;
-                    persist({ dailyTimerStart: start }, "timer");
-                  }}
-                  className={inputClass}
-                />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-meta text-muted">Ends</span>
-                <input
-                  type="time"
-                  value={end}
-                  onChange={(e) => setEnd(e.target.value)}
-                  onBlur={() => {
-                    if (end === snapshot.dailyTimerEnd) return;
-                    persist({ dailyTimerEnd: end }, "timer");
-                  }}
-                  className={inputClass}
-                />
-              </label>
-            </div>
-            <p className="mt-2 text-meta text-muted">IST</p>
-          </>
-        ) : null}
-        <p className="mt-2 text-meta text-muted">
-          When on, the bot only runs between these times.
-        </p>
       </section>
     </div>
   );

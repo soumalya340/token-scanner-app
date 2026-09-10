@@ -3,7 +3,6 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -39,8 +38,6 @@ export function SettingsScreen({
   const [tokenAge, setTokenAge] = useState(String(snapshot.tokenAgeMinutes));
   const [maxTradePct, setMaxTradePct] = useState(String(snapshot.maxTradePct));
   const [pollingSeconds, setPollingSeconds] = useState(String(snapshot.pollingSeconds));
-  const [timerStart, setTimerStart] = useState(snapshot.dailyTimerStart);
-  const [timerEnd, setTimerEnd] = useState(snapshot.dailyTimerEnd);
   const [newChatId, setNewChatId] = useState("");
   const [newChatName, setNewChatName] = useState("");
   const [savedKey, setSavedKey] = useState<string | null>(null);
@@ -220,59 +217,7 @@ export function SettingsScreen({
         </Text>
       </View>
 
-      {/* Setting 5: Daily Schedule Timer */}
-      <View style={styles.settingCard}>
-        <View style={styles.labelRow}>
-          <Text style={styles.settingLabel}>Daily Schedule Window (IST)</Text>
-          <Switch
-            value={snapshot.dailyTimerOn}
-            onValueChange={(val) => {
-              onUpdateSettings({ dailyTimerOn: val });
-              triggerSaveFlash("timer");
-            }}
-            trackColor={{ false: theme.colors.subtleCard, true: theme.colors.gain }}
-            thumbColor="#ffffff"
-          />
-        </View>
-
-        {snapshot.dailyTimerOn && (
-          <View style={styles.timerInputsRow}>
-            <View style={styles.timerInputCol}>
-              <Text style={styles.timerInputLabel}>Starts</Text>
-              <TextInput
-                style={styles.textInput}
-                value={timerStart}
-                onChangeText={setTimerStart}
-                onBlur={() => {
-                  onUpdateSettings({ dailyTimerStart: timerStart });
-                  triggerSaveFlash("timer");
-                }}
-                placeholder="09:00"
-                placeholderTextColor={theme.colors.textDim}
-              />
-            </View>
-            <View style={styles.timerInputCol}>
-              <Text style={styles.timerInputLabel}>Ends</Text>
-              <TextInput
-                style={styles.textInput}
-                value={timerEnd}
-                onChangeText={setTimerEnd}
-                onBlur={() => {
-                  onUpdateSettings({ dailyTimerEnd: timerEnd });
-                  triggerSaveFlash("timer");
-                }}
-                placeholder="21:00"
-                placeholderTextColor={theme.colors.textDim}
-              />
-            </View>
-          </View>
-        )}
-        <Text style={styles.settingHint}>
-          When active, scanner automatically begins and halts within these Indian Standard Time hours.
-        </Text>
-      </View>
-
-      {/* Setting 6: Telegram Alert Broadcasts */}
+      {/* Setting 5: Telegram Alert Broadcasts */}
       <View style={styles.settingCard}>
         <View style={styles.labelRow}>
           <View style={styles.rowInline}>
@@ -451,25 +396,6 @@ const styles = StyleSheet.create({
   suffixText: {
     color: theme.colors.textMuted,
     fontSize: 13,
-  },
-  timerInputsRow: {
-    flexDirection: "row",
-    gap: theme.spacing.md,
-    marginTop: theme.spacing.xs,
-  },
-  timerInputCol: {
-    flex: 1,
-    backgroundColor: theme.colors.subtleCard,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radii.md,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  timerInputLabel: {
-    fontSize: 11,
-    color: theme.colors.textDim,
-    textTransform: "uppercase",
   },
   chatList: {
     marginTop: theme.spacing.sm,
